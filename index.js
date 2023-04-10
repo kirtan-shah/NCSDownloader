@@ -21,9 +21,9 @@ async function main() {
             }
         });
 
-        await page.goto("https://ncs.io/music?page=" + pageNum);
+        await page.goto("https://ncs.io/music-search?q=&page=" + pageNum);
 
-        const playSelector = ".artists .player-play";
+        const playSelector = "td .panel-btn:not(.featured .panel-btn)";
         await page.waitForSelector(playSelector);
         let ids = await page.$$eval(playSelector, (els) => els.map((el) => el.getAttribute("data-tid")));
         song_ids.push(...ids);
