@@ -3,6 +3,9 @@ A NodeJS and bash utility to download all songs from [NoCopyrightSounds](https:/
 
 **Disclaimer:** Use this software at your own risk. I am not responsible for any bans or blocks incurred by use of this software.
 
+## Preview
+![json output](example.png)
+
 ## Instructions
 1. Clone the repository and install npm packages: 
 
