@@ -7,7 +7,7 @@ async function main() {
     const browser = await puppeteer.launch({ headless: true });
     process.stdout.write("Complete\n");
 
-    let song_ids = [];
+    let songs = [];
 
     async function getSongIds(pageNum) {
         const page = await browser.newPage();
@@ -23,24 +23,34 @@ async function main() {
 
         await page.goto("https://ncs.io/music-search?q=&page=" + pageNum);
 
-        const playSelector = "td .panel-btn:not(.featured .panel-btn)";
-        await page.waitForSelector(playSelector);
-        let ids = await page.$$eval(playSelector, (els) => els.map((el) => el.getAttribute("data-tid")));
-        song_ids.push(...ids);
+        const songRowSelector = ".table tr:not(.featured tr, .tablesorter-headerRow)";
+        await page.waitForSelector(songRowSelector);
+        let objs = await page.$$eval(songRowSelector, (els) => els.map(el => ({
+            genre: el.querySelector("td .genre").getAttribute("title"),
+            artist: el.querySelector("td:nth-child(4) span").textContent.trim(),
+            title: el.querySelector("td:nth-child(4) p").textContent.trim(),
+            moods: Array.from(el.querySelectorAll("td:nth-child(5) a")).map(a => a.textContent.trim()).slice(1),
+            id: el.querySelector(".panel-btn").getAttribute("data-tid")
+        })));
+        songs.push(...objs);
 
-        console.log("Found " + ids.length + " songs on page " + pageNum);
+        console.log("Found " + objs.length + " songs on page " + pageNum);
     }
 
     let pages = [...Array(66).keys()].map(i => i + 1); // 1-66
     await bluebird.map(pages, getSongIds, { concurrency: 8 });
     await browser.close();
-    console.log("Found " + song_ids.length + " songs total");
+    console.log("Found " + songs.length + " songs total");
 
-    let urls = song_ids.map((id) => `https://ncs.io/track/download/${id}`);
+    let urls = songs.map(song => `https://ncs.io/track/download/${song.id}`);
 
     // write to file
     process.stdout.write("Writing to download_list.txt...");
     fs.writeFileSync("download_list.txt", urls.join("\n"));
+    process.stdout.write("Complete\n");
+    
+    process.stdout.write("Writing to songs.json...");
+    fs.writeFileSync("songs.json", JSON.stringify(songs, null, 2));
     process.stdout.write("Complete\n");
 }
 

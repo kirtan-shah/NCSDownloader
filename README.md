@@ -1,5 +1,5 @@
 # NCSDownloader
-A NodeJS and bash utility to download all songs from [NoCopyrightSounds](https://ncs.io/music).
+A NodeJS and bash utility to download all songs from [NoCopyrightSounds](https://ncs.io/music). Also gathers metadata like genre and mood in JSON format.
 
 **Disclaimer:** Use this software at your own risk. I am not responsible for any bans or blocks incurred by use of this software.
 
